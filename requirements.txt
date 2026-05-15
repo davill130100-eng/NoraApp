@@ -1,9 +1,24 @@
 # Lista de requerimientos del proyecto
 
-asgiref==3.8.1
+# Core Django
+asgiref==3.9.0
 Django==5.1.6
-mysqlclient==2.2.7
-pip==25.0.1
-sqlparse==0.5.3
+sqlparse==0.5.4
 tzdata==2025.1
+
+# Database
+mysqlclient==2.2.8
+
+# Environment and Configuration
+python-dotenv==1.0.1
+
+# Image Processing
+Pillow==11.0.0
+
+# CORS Support
+django-cors-headers==4.4.0
+
+# Development Dependencies
+# Install with: pip install -r requirements.txt -r requirements-dev.txt
+# Or: pip install -r requirements.txt[dev]
 
