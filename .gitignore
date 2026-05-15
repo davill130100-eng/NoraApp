@@ -9,7 +9,6 @@ node_modules/
 **/node_modules/
 static/*
 !static
-config/
 
 !static/bootstrap/
 !static/datatables/
