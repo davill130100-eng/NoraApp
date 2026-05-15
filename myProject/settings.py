@@ -10,6 +10,7 @@ https://docs.djangoproject.com/en/stable/topics/settings/
 
 import os
 from pathlib import Path
+from config.env import Env
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -18,12 +19,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/stable/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'your-secret-key-here'
+SECRET_KEY = Env.SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = Env.DEBUG
 
-ALLOWED_HOSTS = ["127.0.0.1", "192.168.101.8"]
+ALLOWED_HOSTS = ["127.0.0.1", Env.HOST]
 
 # Application definition
 
@@ -74,11 +75,11 @@ WSGI_APPLICATION = 'myProject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'noradb',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',  #servidor MySQL
-        'PORT': '3306',       #puerto MySQL
+        'NAME': Env.DB_NAME,
+        'USER': Env.DB_USER,
+        'PASSWORD': Env.DB_PASSWORD,
+        'HOST': Env.DB_HOST,
+        'PORT': Env.DB_PORT,
     }
 }
 
