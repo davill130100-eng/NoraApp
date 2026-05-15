@@ -101,7 +101,7 @@ span .alert-text {
 .pizza-container {
     min-width: 610px;
     min-height: 610px;
-    background-image: url("../default_images/pizza.png");
+    background-image: url("../img/pizza.png");
     background-repeat: no-repeat;
     background-size: cover !important;
     display: flex;

@@ -12,8 +12,11 @@ static/*
 
 !static/bootstrap/
 !static/datatables/
+!static/bootstrap/
+!static/fonts/
+!static/icons/
 !static/css/
 !static/js/
-!static/default_images/
+!static/img/
 !static/favicon.ico
 !static/favicon.png

@@ -22,7 +22,7 @@
                             <i class="bi bi-currency-dollar me-1"></i>
                             <small class="me-1">{{ mesa.total_pedido }}</small>
                         </span>
-                        <img src="{% static 'default_images/logo.png' %}" class="card-img-top">
+                        <img src="{% static 'img/logo.png' %}" class="card-img-top">
                     </div>
                     <div class="card-body border-top text-center p-0">
                         <h4 class="m-0">{% if mesa.numero_mesa in barras %} LLEVAR  {% else %} Mesa {{ mesa.numero_mesa }} {% endif %}</h4>
