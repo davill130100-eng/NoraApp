@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.dev/svgjs" width="1440" height="560" preserveAspectRatio="none" viewBox="0 0 1440 560"><g mask="url(&quot;#SvgjsMask1203&quot;)" fill="none"><rect width="1440" height="560" x="0" y="0" fill="url(&quot;#SvgjsLinearGradient1204&quot;)"></rect><path d="M1317.6306331942155 99.58068849969317L1293.9068608446253 182.31531485404815 1376.6414871989803 206.0390872036385 1400.3652595485705 123.30446084928352z" fill="rgba(28, 83, 142, 0.4)" class="triangle-float2"></path><path d="M638.89854804079 432.13271955143716L596.017720419022 282.5895019394315 446.4745028070164 325.4703295611995 489.3553304287844 475.01354717320515z" fill="rgba(28, 83, 142, 0.4)" class="triangle-float1"></path><path d="M-3.01 294.45 a153.76 153.76 0 1 0 307.52 0 a153.76 153.76 0 1 0 -307.52 0z" fill="rgba(28, 83, 142, 0.4)" class="triangle-float1"></path><path d="M-25.252250800232908 255.1164676876385L72.10710746300506 320.7861840305055 40.41746554263408 157.75710942440054z" fill="rgba(28, 83, 142, 0.4)" class="triangle-float3"></path><path d="M698.66 198.95 a177.09 177.09 0 1 0 354.18 0 a177.09 177.09 0 1 0 -354.18 0z" fill="rgba(28, 83, 142, 0.4)" class="triangle-float1"></path><path d="M1260.225,454.347C1275.165,454.327,1290.047,448.818,1297.838,436.07C1305.946,422.803,1304.946,406.456,1297.994,392.548C1290.115,376.786,1277.844,360.501,1260.225,360.824C1242.91,361.141,1232.545,378.41,1224.782,393.89C1218,407.413,1214.788,423.119,1222.439,436.17C1230.015,449.093,1245.245,454.367,1260.225,454.347" fill="rgba(28, 83, 142, 0.4)" class="triangle-float1"></path><path d="M509.0299480636669 300.5034646728092L419.86406502791726 298.94706839503834 462.1124121291358 433.4740910875482z" fill="rgba(28, 83, 142, 0.4)" class="triangle-float1"></path><path d="M887.705,499.557C904.658,500.883,920.136,489.984,928.63,475.252C937.116,460.535,937.57,442.45,929.134,427.705C920.641,412.861,904.807,403.61,887.705,403.724C870.795,403.837,854.455,412.966,847.226,428.253C840.751,441.946,849.069,456.441,856.547,469.613C864.169,483.039,872.313,498.353,887.705,499.557" fill="rgba(28, 83, 142, 0.4)" class="triangle-float1"></path><path d="M327.184,513.131C383.611,514.862,442.844,501.771,473.995,454.689C508.179,403.024,514.539,333.171,480.498,281.412C448.843,233.28,384.548,226.166,327.184,231.463C279.643,235.853,241.154,265.15,216.147,305.82C189.599,348.997,171.258,401.454,195.189,446.135C220.158,492.753,274.325,511.509,327.184,513.131" fill="rgba(28, 83, 142, 0.4)" class="triangle-float2"></path><path d="M799.29 524.44 a102.5 102.5 0 1 0 205 0 a102.5 102.5 0 1 0 -205 0z" fill="rgba(28, 83, 142, 0.4)" class="triangle-float1"></path></g><defs><mask id="SvgjsMask1203"><rect width="1440" height="560" fill="#ffffff"></rect></mask><linearGradient x1="15.28%" y1="-39.29%" x2="84.72%" y2="139.29%" gradientUnits="userSpaceOnUse" id="SvgjsLinearGradient1204"><stop stop-color="#0e2a47" offset="0"></stop><stop stop-color="rgba(0, 0, 0, 1)" offset="1"></stop></linearGradient><style>
+                @keyframes float1 {
+                    0%{transform: translate(0, 0)}
+                    50%{transform: translate(-10px, 0)}
+                    100%{transform: translate(0, 0)}
+                }
+
+                .triangle-float1 {
+                    animation: float1 5s infinite;
+                }
+
+                @keyframes float2 {
+                    0%{transform: translate(0, 0)}
+                    50%{transform: translate(-5px, -5px)}
+                    100%{transform: translate(0, 0)}
+                }
+
+                .triangle-float2 {
+                    animation: float2 4s infinite;
+                }
+
+                @keyframes float3 {
+                    0%{transform: translate(0, 0)}
+                    50%{transform: translate(0, -10px)}
+                    100%{transform: translate(0, 0)}
+                }
+
+                .triangle-float3 {
+                    animation: float3 6s infinite;
+                }
+            </style></defs></svg>

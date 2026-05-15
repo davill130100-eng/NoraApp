@@ -13,7 +13,6 @@ class Base(models.Model):
     def __str__(self):
         return self.base_dia, self.base_observacion, self.usuario.username
 
-
 #Retiros de caja
 class Retiro(models.Model):
     retiro_monto = models.IntegerField()

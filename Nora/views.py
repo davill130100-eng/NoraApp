@@ -1,8 +1,7 @@
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import login as auth_login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login as auth_login
 from django.contrib import messages
-from django.core.exceptions import ObjectDoesNotExist, ValidationError, PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import DatabaseError, IntegrityError
 from django.db.models import Sum
 from django.http import JsonResponse
@@ -10,72 +9,106 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.timezone import  localtime, now, make_aware
 from datetime import datetime, timedelta
+from .decorators import base_today_required
 import json
+
 from .models import Producto, Grupo, Mesa, Pedido, PedidoProducto, Base, Retiro, Cierre
 
+from .utils.login import auth_form, base_validator
+from .utils.pedidos import sum_total_pedidos_utils, percent_by_status_pedido_utils
 
+# =======================
 # LOGIN
+# =======================
 def login(request):
     try:
         if request.method == 'POST':
-            form = AuthenticationForm(request, data=request.POST)
+            form = auth_form.CustomAuthenticationForm(
+                request,
+                data=request.POST
+            )
+
             if form.is_valid():
                 user = form.get_user()
                 auth_login(request, user)
-                messages.success(request, f'{user.username} Ha iniciado sesión')
 
-                # Validar existencia de base
-                hoy = localtime(now()).date()
-                inicio_dia = make_aware(datetime.combine(hoy, datetime.min.time()))  # 00:00:00
-                fin_dia = make_aware(datetime.combine(hoy, datetime.max.time()))    # 23:59:59
-                base_hoy = Base.objects.filter(creado_en__range=(inicio_dia, fin_dia)).exists()
-                
-                if base_hoy:
+                if base_validator.verify(Base):
+                    messages.success(
+                        request,
+                        f'Bienvenido {user.username}'
+                    )
                     return redirect('index')
-                else:
-                    return redirect('agregar_base')
-            else:
-                messages.error(request, 'Usuario y/o contraseña incorrectos')
+
+                messages.warning(
+                    request,
+                    'Es necesario ingresar el Monto para iniciar.'
+                )
+                return redirect('agregar_base')
+
         else:
-            form = AuthenticationForm()
-    
-    except ObjectDoesNotExist as e:
-        messages.error(request, f'Error: No se encontró el objeto. {str(e)}')
-    except ValidationError as e:
-        messages.error(request, f'Error de validación: {str(e)}')
-    except PermissionDenied as e:
-        messages.error(request, f'Permiso denegado: {str(e)}')
-    except DatabaseError as e:
-        messages.error(request, f'Error en la base de datos: {str(e)}')
-    except IntegrityError as e:
-        messages.error(request, f'Error de integridad: {str(e)}')
+            form = auth_form.CustomAuthenticationForm()
+
     except Exception as e:
-        return render(request, 'errores/error_general.html', {'error_message': str(e)})
+        return render(
+            request,
+            'errores/error_general.html',
+            {'error_message': str(e)}
+        )
 
-    return render(request, 'registration/login.html', {'form': form})
+    return render(
+        request,
+        'registration/login.html',
+        {'form': form}
+    )
 
-
-#INDEX
+# =======================
+# PRINCIPAL
+# =======================
 @login_required
 def index(request):
     try:
-        mesas = Mesa.objects.all().order_by('numero_mesa')
-    
-    except ObjectDoesNotExist as e:
-        messages.error(request, f'Error: No se encontraron mesas. {str(e)}')
-        return render(request, 'errores/error_general.html', {'error_message': str(e)})
-    except DatabaseError as e:
-        messages.error(request, f'Error en la base de datos: {str(e)}')
-        return render(request, 'errores/error_general.html', {'error_message': str(e)})
-    except ValidationError as e:
-        messages.error(request, f'Error de validación: {str(e)}')
-        return render(request, 'errores/error_general.html', {'error_message': str(e)})
+        total_venta_del_dia = sum_total_pedidos_utils.calculate(
+            Pedido, 
+            "creado_en", 
+            "total_pedido"
+        )
+
+        porcentajes_medio_pago = percent_by_status_pedido_utils.calculate(
+        Pedido,
+            "creado_en",
+            "total_pedido",
+            "estado_pedido",
+            [2, 3, 4]
+        )
+
+        context = {
+            'total_pedidos_hoy': total_venta_del_dia,
+            'porcentajes': porcentajes_medio_pago
+        }
+        
+        return render(request, 'index/index.html', context)
     except Exception as e:
         return render(request, 'errores/error_general.html', {'error_message': str(e)})
-    
-    return render(request, 'index/index.html', {'mesas': mesas})
+
+# =======================
+# BARRA
+# =======================
+@login_required
+@base_today_required
+def barra(request):
+    try:
+        mesas = Mesa.objects.all().order_by('numero_mesa')
+        barras = [100, 101, 102, 103, 104, 105]
+        context = {
+            'mesas' : mesas,
+            'barras' : barras
+        }
+        return render(request, 'barra/barra.html', context)   
+    except Exception as e:
+        return render(request, 'errores/error_general.html', {'error_message': str(e)})
 
 @login_required
+@base_today_required
 def obtener_mesas(request):
     try:
         mesas = Mesa.objects.all().order_by('numero_mesa')
@@ -96,8 +129,11 @@ def obtener_mesas(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
-#BASES
+# =======================
+# BASES
+# =======================
 @login_required
+@base_today_required
 def gestionar_bases(request):
     try:
         bases = Base.objects.all().order_by('-creado_en')
@@ -140,7 +176,7 @@ def agregar_base(request):
                         usuario=request.user
                     )
                     base.save()
-                    messages.success(request, f'La base fue grabada en ${base_dia}')
+                    # messages.success(request, f'La base fue grabada en ${base_dia}')
                     return redirect('index')
                 except (ValueError, TypeError) as e:
                     messages.error(request, f'Error: {str(e)}')
@@ -152,6 +188,7 @@ def agregar_base(request):
     return render(request, 'bases/agregar_base.html', {'existe_base': existe_base})
 
 @login_required
+@base_today_required
 def editar_base(request, base_id):
     try:
         base = get_object_or_404(Base, id=base_id)
@@ -185,6 +222,7 @@ def editar_base(request, base_id):
 
 #RRETIROS DE CAJA
 @login_required
+@base_today_required
 def gestionar_retiros(request):
     try:
         retiros = Retiro.objects.all().order_by('-creado_en')
@@ -200,6 +238,7 @@ def gestionar_retiros(request):
     return render(request, 'retiros/gestionar_retiros.html', {'retiros': retiros})
 
 @login_required
+@base_today_required
 def agregar_retiro(request):
     try:
         if request.method == 'POST':
@@ -231,6 +270,7 @@ def agregar_retiro(request):
     return render(request, 'retiros/agregar_retiro.html')
 
 @login_required
+@base_today_required
 def editar_retiro(request, retiro_id):
     try:
         retiro = get_object_or_404(Retiro, id=retiro_id)
@@ -264,6 +304,7 @@ def editar_retiro(request, retiro_id):
     return render(request, 'retiros/editar_retiro.html', {'retiro': retiro})
 
 @login_required
+@base_today_required
 def eliminar_retiro(request, retiro_id):
     try:
         retiro = get_object_or_404(Retiro, id=retiro_id)
@@ -276,6 +317,7 @@ def eliminar_retiro(request, retiro_id):
 
 #ARQUEO DE CAJA
 @login_required
+@base_today_required
 def arqueo_caja(request):
     try:
         # Fecha actual en la zona horaria local
@@ -324,6 +366,7 @@ def arqueo_caja(request):
 
 #PRODUCTOS
 @login_required
+@base_today_required
 def gestionar_productos(request):
     try:
         productos = Producto.objects.all().order_by('nombre_producto')
@@ -345,6 +388,7 @@ def gestionar_productos(request):
     })
         
 @login_required
+@base_today_required
 def agregar_producto(request):
     try:
         if request.method == 'POST':
@@ -384,6 +428,7 @@ def agregar_producto(request):
     return render(request, 'productos/agregar_producto.html', {'grupos': grupos})
 
 @login_required
+@base_today_required
 def editar_producto(request, producto_id):
     try:
         producto = get_object_or_404(Producto, id=producto_id)
@@ -430,6 +475,7 @@ def editar_producto(request, producto_id):
     })
 
 @login_required
+@base_today_required
 def eliminar_producto(request, producto_id):
     try:
         producto = get_object_or_404(Producto, id=producto_id)
@@ -442,6 +488,7 @@ def eliminar_producto(request, producto_id):
 
 #GRUPOS
 @login_required
+@base_today_required
 def gestionar_grupos(request):
     try:
         grupos = Grupo.objects.all().order_by('nombre_grupo')
@@ -454,6 +501,7 @@ def gestionar_grupos(request):
     return render(request, 'grupos/gestionar_grupos.html', {'grupos': grupos})
 
 @login_required
+@base_today_required
 def agregar_grupo(request):
     try:
         if request.method == 'POST':
@@ -476,6 +524,7 @@ def agregar_grupo(request):
     return render(request, 'grupos/agregar_grupo.html')
     
 @login_required
+@base_today_required
 def editar_grupo(request, grupo_id):
     try:
         grupo = get_object_or_404(Grupo, id=grupo_id)
@@ -504,6 +553,7 @@ def editar_grupo(request, grupo_id):
     return render(request, 'grupos/editar_grupo.html', {'grupo': grupo})
 
 @login_required
+@base_today_required
 def eliminar_grupo(request, grupo_id):
     try:
         grupo = get_object_or_404(Grupo, id=grupo_id)
@@ -516,6 +566,7 @@ def eliminar_grupo(request, grupo_id):
 
 #MESAS
 @login_required
+@base_today_required
 def gestionar_mesas(request):
     try:
         mesas = Mesa.objects.all().order_by('-numero_mesa')
@@ -528,6 +579,7 @@ def gestionar_mesas(request):
     return render(request, 'mesas/gestionar_mesas.html', {'mesas': mesas})
 
 @login_required
+@base_today_required
 def agregar_mesa(request):
     try:
         if request.method == 'POST':
@@ -556,6 +608,7 @@ def agregar_mesa(request):
     return render(request, 'mesas/agregar_mesa.html')
     
 @login_required
+@base_today_required
 def editar_mesa(request, mesa_id):
     try:
         mesa = get_object_or_404(Mesa, id=mesa_id)
@@ -587,6 +640,7 @@ def editar_mesa(request, mesa_id):
     return render(request, 'mesas/editar_mesa.html', {'mesa': mesa})
 
 @login_required
+@base_today_required
 def eliminar_mesa(request, mesa_id):
     try:
         mesa = get_object_or_404(Mesa, id=mesa_id)
@@ -599,6 +653,7 @@ def eliminar_mesa(request, mesa_id):
 
 #PEDIDOS
 @login_required
+@base_today_required
 def gestionar_pedidos(request):
     try:
         pedidos = Pedido.objects.all().order_by('-numero_pedido')
@@ -621,6 +676,7 @@ def gestionar_pedidos(request):
     return render(request, 'pedidos/gestionar_pedidos.html', {'pedidos': pedidos,})
     
 @login_required
+@base_today_required
 def agregar_pedido(request, numero_mesa=None):
     try:
         if request.method == 'POST':
@@ -699,6 +755,7 @@ def agregar_pedido(request, numero_mesa=None):
     })
 
 @login_required
+@base_today_required
 def ver_pedido(request, numero_pedido):
     try:
         pedido = Pedido.objects.get(numero_pedido=numero_pedido)
@@ -723,6 +780,7 @@ def ver_pedido(request, numero_pedido):
     })
 
 @login_required
+@base_today_required
 def editar_pedido(request, numero_pedido):
     pedido = get_object_or_404(Pedido, numero_pedido=numero_pedido)
     try:
@@ -800,6 +858,7 @@ def editar_pedido(request, numero_pedido):
     })
 
 @login_required
+@base_today_required
 def eliminar_pedido(request, numero_pedido):
     try:
         pedido = get_object_or_404(Pedido, numero_pedido=numero_pedido)
@@ -812,6 +871,7 @@ def eliminar_pedido(request, numero_pedido):
 
 #CIERRES DE CAJA
 @login_required
+@base_today_required
 def gestionar_cierres(request):
     try:
         fecha_inicio = request.GET.get('fecha_inicio')
@@ -830,6 +890,7 @@ def gestionar_cierres(request):
     })
 
 @login_required
+@base_today_required
 def agregar_cierre(request):
     try:
         #Asignar fecha actual en la zona horaria local
@@ -903,6 +964,7 @@ def agregar_cierre(request):
     })
 
 @login_required
+@base_today_required
 def editar_cierre(request, cierre_id):
     try:
         cierre = get_object_or_404(Cierre, id=cierre_id)

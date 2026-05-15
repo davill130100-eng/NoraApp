@@ -1,70 +1,125 @@
-{% extends "base.html" %}
-{% block title %}Iniciar Sesión{% endblock %}
-{% block content %}
-    <!--Login Software Nora-->
-    <main class="d-flex justify-content-center align-items-center flex-column gap-1 h-100"
-    id="page" data-page="Login">
-        {% if not user.is_authenticated %}
-            <!--Title-->
-            <div class="text-light d-flex justify-content-center text-focus-in w-100">
-                <h1 class="nora-title-login">N O R A</h1>
-            </div>
-            <!--Login-->
-            <section class="card-login roll-in-left">
-                <div class="card-header rounded-top shadow-inset-left-bottom  d-flex justify-content-end p-2 bg-navbar border-bottom border-secondary">
-                    <a href="{% url 'admin:login' %}">
-                        <button class="btn btn-warning shadow-inset-left-bottom  hover-lift">
-                            <i class="bi bi-person-fill-gear me-1"></i>Admin
+{% load static %}
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Iniciar Sesión{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'icons/LooneyPizza.ico' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap/dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-icons/font/bootstrap-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+<body>
+
+    {% if form.errors %}
+    <header>
+
+        <div class="alert alert-warning border-2 position-fixed alert-dismissible d-flex align-content-center fade show pt-2">
+            <span class="alert-text">
+                {{ form.non_field_errors }}
+            </span>
+            <button class="btn-close"
+            type="button" 
+            data-bs-dismiss="alert" 
+            aria-label="Close" 
+            title="Cerrar"></button>
+        </div>
+
+    </header>
+    {% endif %}
+
+    <main class="row mx-0">
+
+        <!--Form-->
+        <div class="pizza-form-container col-lg-6 col-12 p-0">
+
+            <div class="pizza-container">
+             <form class="login-form" 
+            method="post"
+            id="login-form"
+            >
+               <div class="login-form-container h-100 w-100 p-2">
+
+                    {% csrf_token %}
+                    <div class="input-group border border-dark rounded active-border-group">
+                        <span class="input-group-text px-0 bg-danger border-4 border-danger"
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="left"
+                        data-bs-custom-class="custom-tooltip"
+                        data-bs-title="Ingrese su nombre de usuario en este campo"
+                        >
+                            <i class="bi bi-person-fill text-shadow"></i>
+                        </span>
+                        <input class="form-control border-4 border-danger" 
+                        id="{{ form.username.id_for_label }}"  
+                        name="{{ form.username.name }}"
+                        placeholder="Nombre de usuario" 
+                        autocomplete="off"
+                        type="text"
+                        required
+                        >
+                    </div>
+
+                    <div class="input-group border border-dark rounded active-border-group border">
+                        <span class="input-group-text px-0 bg-danger border-4 border-danger"
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="left"
+                        data-bs-custom-class="custom-tooltip"
+                        data-bs-title="Ingrese su clave en este campo"
+                        >
+                            <i class="bi bi-lock-fill text-shadow"></i>
+                        </span>
+                        <input class="form-control  border-4 border-danger input-psw"
+                        id="{{ form.password.id_for_label }}"
+                        name="{{ form.password.name }}"
+                        placeholder="Clave" 
+                        type="password" 
+                        required
+                        >
+                        <button class="btn btn-light shadow-inset border-4 border-danger border-start-0" 
+                        id="togglePassword"
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="top"
+                        data-bs-custom-class="custom-tooltip"
+                        data-bs-title="Mostrar clave"
+                        type="button"
+                        >
+                            <i class="bi bi-eye"></i>
                         </button>
-                    </a>
-                </div>
-                <div class="card-body rounded-bottom shadow-inset-left-bottom p-2">
-                    <form class="d-flex flex-column gap-2" method="post">
-                        {% csrf_token %}
-                        <div class="input-group active-border-group">
-                            <span class="input-group-text px-1 bg-dark-light border border-dark">
-                                <i class="bi bi-person-fill"></i>
-                            </span>
-                            <input placeholder="Ingresar Usuario" type="text" name="{{ form.username.name }}" 
-                            id="{{ form.username.id_for_label }}" class="form-control border-0 input-not-focus" autocomplete="off" required>
-                        </div>
+                    </div>
 
-                        <div class="input-group active-border-group">
-                            <span class="input-group-text px-1 bg-dark-light border border-dark">
-                                <i class="bi bi-lock-fill"></i>
-                            </span>
-                            <input placeholder="Contraseña" type="password" name="{{ form.password.name }}" 
-                            id="{{ form.password.id_for_label }}" class="form-control border-0 input-not-focus" required>
-                            <button type="button" class="btn btn-secondary shadow-inset border border-dark" id="togglePassword">
-                                <i class="bi bi-eye"></i>
-                            </button>
-                        </div>
-
-                        <div class="form-group d-flex justify-content-center">
-                            <button type="submit" class="btn btn-light shadow-inset-left-bottom  hover-lift">
-                                Iniciar
-                                <i class="bi bi-box-arrow-in-right"></i>
-                            </button>
-                        </div>
-                    </form>
                 </div>
-            </section>
-            <!--Version-->
-            <div class="software-version-login d-flex justify-content-end text-light tracking-in-contract">
-                <small><i>Software V. 2</i></small>
+                </form> 
             </div>
-        {% endif %}
 
-        {% if user.is_authenticated %}
-            <div class="d-flex align-items-center flex-column w-100">
-                <div class="text-light d-flex justify-content-center text-focus-in w-100">
-                    <h1 class="nora-title-login">N O R A</h1>
-                </div>
-                <div class="software-version-login d-flex justify-content-center text-light tracking-in-contract">
-                    <small><i>Software V. 2</i></small>
-                </div>
+        </div>
+
+        <!--Submit-->
+        <div class="submit-container col-lg-6 col-12">
+
+            <h1 class="unselect-text">Looney Pizza</h1>
+
+            <div class="d-flex justify-content-center p-3">
+                <button class="btn btn-sm btn-submit btn-outline-light shadow-inset-left-bottom  hover-lift clicker-btn active-border-group"
+                form="login-form"
+                type="submit">
+                    Iniciar
+                    <i class="bi bi-box-arrow-in-right"></i>
+                </button>
             </div>
-        {% endif %}
+
+        </div> 
 
     </main>
-{% endblock %}
+
+    <footer class="bg-secondary-subtle text-center">
+        <em>© Looney Pizza - 2026</em>
+    </footer> 
+    
+    <script src="{% static 'bootstrap/dist/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
+    <script type="module" src="{% static 'js/main_login.js' %}"></script>
+
+</body>
+</html>

@@ -1,6 +1,0 @@
-POR IMPLEMENTAR:
-
-*. agregar medio de pago por tarjeta agregar_pedido y editar_pedido
-
-1. 
-

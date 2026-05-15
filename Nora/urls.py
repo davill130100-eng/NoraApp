@@ -4,6 +4,9 @@ from . import views
 urlpatterns = [
     #Index
     path('', views.index, name='index'),
+
+    #Main
+    path('barra/', views.barra, name='barra'),
     path('api/mesas/', views.obtener_mesas, name='obtener_mesas'),
 
     #Base
@@ -40,9 +43,9 @@ urlpatterns = [
 
     #Pedidos
     path('pedidos/', views.gestionar_pedidos, name='gestionar_pedidos'),
-    path('pedidos/agregar/<int:numero_mesa>/', views.agregar_pedido, name='agregar_pedido'),
+    path('barra/pedidos/agregar/<int:numero_mesa>/', views.agregar_pedido, name='agregar_pedido'),
     path('pedidos/ver/<int:numero_pedido>/', views.ver_pedido, name='ver_pedido'),
-    path('pedidos/editar/<int:numero_pedido>/', views.editar_pedido, name='editar_pedido'),
+    path('barra/pedidos/editar/<int:numero_pedido>/', views.editar_pedido, name='editar_pedido'),
     path('pedidos/eliminar/<int:numero_pedido>/', views.eliminar_pedido, name='eliminar_pedido'),
 
     #Cierres

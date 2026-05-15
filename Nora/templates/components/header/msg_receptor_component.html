@@ -1,0 +1,7 @@
+ <div id="data-messages" 
+    data-messages='[
+        {% for message in messages %}
+            {"text": "{{ message|escapejs }}", "type": "{{ message.tags }}"}
+            {% if not forloop.last %}, {% endif %}
+        {% endfor %} ]'
+></div>

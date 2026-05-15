@@ -1,0 +1,76 @@
+{% load static %}
+{% load sidebar_tags %}
+
+{% block extra_css %}
+    <style>
+        .nav-navigation, .btn-logout{
+            border-radius:  9999px;
+        }
+
+        .looney_logo{
+            background-image: url("../../../../static/default_images/logo.png");
+            background-size: cover;
+            background-repeat: no-repeat;
+            height: 65px;
+        }
+
+        .form-logout{
+            width: 50px;
+            height: 50px;
+        }
+    </style>
+{% endblock %}
+
+<nav class="nav-navigation h-100 gap-2 border border-danger">
+
+    <span class="looney_logo p-0 m-0"></span>
+
+    <!--Dashboard-->
+    {% sidebar_anchor_component "index" "principal-icon" "lottie-web/icons/wired-outline-27-globe-hover-rotate.json" "PRINCIPAL" %}
+
+    <!--Barra-->
+    {% sidebar_anchor_component "barra" "home-icon" "lottie-web/icons/wired-outline-63-home-hover-3d-roll.json" "BARRA" %}
+
+    <!--Pedidos-->
+    {% sidebar_anchor_component "gestionar_pedidos agregar_pedido ver_pedido editar_pedido" "ventas-icon" "lottie-web/icons/wired-outline-146-trolley-hover-jump.json" "PEDIDOS" %}
+
+    <!--Retiros de caja-->
+    {% sidebar_anchor_component "gestionar_retiros agregar_retiro editar_retiro" "retiros-icon" "lottie-web/icons/wired-outline-1933-vote-elections-hover-pinch.json" "RETIROS" %}
+
+    <!--Arqueos-->
+    {% sidebar_anchor_component "arqueo_caja" "arqueos-icon" "lottie-web/icons/wired-outline-2947-calendar-christmas-eve-hover-pinch.json" "ARQUEOS" %}
+    
+    <!--Cierres-->
+    {% sidebar_anchor_component "gestionar_cierres agregar_cierre editar_cierre" "cierres-icon" "lottie-web/icons/wired-outline-153-bar-chart-hover-growth.json" "CIERRES" %}
+    
+    <!--Bases-->
+    {% sidebar_anchor_component "gestionar_bases agregar_base editar_base" "bases-icon" "lottie-web/icons/wired-outline-948-stock-share-hover-pinch.json" "BASES" %}
+    
+    <!--Productos-->
+    {% sidebar_anchor_component "gestionar_productos agregar_producto editar_producto" "productos-icon" "lottie-web/icons/wired-outline-567-french-fries-chips-hover-pinch.json" "PRODUCTOS" %}
+    
+    <!--Grupos-->
+    {% sidebar_anchor_component "gestionar_grupos agregar_grupo editar_grupo" "grupos-icon" "lottie-web/icons/wired-outline-1360-grocery-shelf-in-reveal.json" "GRUPOS" %}
+    
+    <!--Mesas-->
+    {% sidebar_anchor_component "gestionar_mesas agregar_mesa editar_mesa" "mesas-icon" "lottie-web/icons/wired-outline-12-layers-hover-slide.json" "MESAS" %}
+    
+    <div class="flex-grow-1"></div>
+    
+    <!--Logout-->
+    <form class="form-logout m-2" action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button class="btn-logout btn btn-danger px-2 border border-secondary hover-lift shadow-inset-left-bottom"  
+        id="logout-btn"
+        data-bs-toggle="tooltip" 
+        data-bs-placement="right" 
+        data-bs-title="Cerrar Sesión" 
+        data-msj_logout="Está seguro de cerrar sesión"
+        type="submit" 
+        >
+            <div id="user-icon" 
+            data-path="{% static 'lottie-web/icons/wired-outline-268-avatar-man-hover-glance.json' %}"></div>
+        </button>
+    </form>
+
+</nav>   

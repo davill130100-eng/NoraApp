@@ -1,0 +1,9 @@
+# Lista de requerimientos del proyecto
+
+asgiref==3.8.1
+Django==5.1.6
+mysqlclient==2.2.7
+pip==25.0.1
+sqlparse==0.5.3
+tzdata==2025.1
+

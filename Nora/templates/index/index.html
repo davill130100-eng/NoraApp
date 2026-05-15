@@ -1,34 +1,11 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Barra{% endblock %}
+{% load humanize %}
+{% block title %}Principal{% endblock %}
 {% block content %}
-    <main class="h-100 p-2 ps-0" id="page" data-page="Barra">
-        <!--Mesas-->
-        <section class="row row-cols-lg-5 row-cols-md-4 row-cols-sm-3 row-cols-2 gx-2 gy-2" 
-        id="data-url" data-url="{% url 'obtener_mesas' %}">
-            {% for mesa in mesas %}
-            <div class="">
-                <a href="#" class="link-underline link-underline-opacity-0 p-0 mesa-{{ mesa.numero_mesa }}">
-
-                    <div class="card p-0 card-hover bg-navbar text-light shadow-inset-left-bottom hover-lift">
-                        <div class="card-header">
-                            <span class="badge text-bg-warning rounded-pill mesa-badge d-none shadow-inset-left-bottom">
-                                <i class="bi bi-currency-dollar me-1"></i>
-                                <small class="me-1">{{ mesa.total_pedido }}</small>
-                            </span>
-                            <img src="{% static 'default_images/mesa.png' %}" class="card-img-top">
-                        </div>
-                        <div class="card-body border-top text-center p-0">
-                            <h4 class="m-0">Mesa {{ mesa.numero_mesa }}</h4>
-                            <p class="m-0">{% if mesa.estado_mesa == 1 %}Ocupada{% else %}Disponible{% endif %}</p>
-                        </div>
-                    </div>
-
-                </a>
-            </div>
-            {% endfor %}
-        </section>
-    </main>
+    <section class="border h-100 m-0">
+        
+    </section>
 {% endblock %}|
 
 

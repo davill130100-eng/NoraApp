@@ -1,35 +1,85 @@
 {% extends "base.html" %}
+{% load static %}
+
 {% block title %}Agregar Base{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/bases/styles.css' %}">
+{% endblock %}
+
+{% block extra_header %}
+    <section class="d-flex flex-column gap-2 pt-3 justify-content-center align-items-center">
+        <div class="alert-base card text-center fw-bold jello-horizontal">
+        
+            <div class="card-header warning-msj px-3 py-1 d-flex justify-content-between">
+                <i class="bi bi-exclamation-diamond"></i>
+                IMPORTANTE
+                <i class="bi bi-exclamation-diamond"></i>
+            </div>
+
+            {% if not existe_base %}
+                <div class="card-body border border-warning rounded-bottom">
+                    Es necesario ingresar el <span class="badge bg-light border text-dark border-secondary rounded">Monto</span> para iniciar.
+                </div>
+            {% endif %}
+            
+            {% if existe_base %}
+                <div class="card-body d-flex flex-column gap-2">
+                    El monto de la base ya fué registrado
+                    <a class="btn btn-success shadow-inset-left-bottom border hover-lift" href="{% url 'index' %}">
+                        Ir a la barra principal 
+                        <i class="bi bi-box-arrow-in-right"></i>
+                    </a>
+                </div>
+            {% endif %}
+
+            </div>
+    </section>
+{% endblock %}
+
 {% block content %}
-
-    <main class="d-flex flex-column gap-2 justify-content-center align-items-center h-100 p-2 ps-0" 
-    id="page" data-page="bases" data-key_create="enable">
-
+    <section class="bases-container d-flex flex-column gap-2 justify-content-center align-items-center p-2">
         {% if not existe_base %}
-            <!--Panel Ag Base-->    
-            <section class="card bg-secondary shadow-inset-left-bottom">
-                <div class="card-header px-3 py-0 border border-bottom-0">
-                    <h3 class="fw-bold m-0">Agregar Base</h3>
+            <div class="card-bases card border border-success border-opacity-25">
+
+                <div class="card-header bg-success px-3 py-2 border border-0 d-flex justify-content-between align-items-center">
+                    <h3 class="fw-bold text-light m-0">Agregar Base</h3>
+                    <i class="bi bi-question-circle"
+                    id="show_tip"
+                    data-bs-toggle="tooltip" 
+                    data-bs-placement="top" 
+                    data-bs-title="Ingrese el monto de la base para iniciar el día. Este monto se sumará a las ventas del día y se restará al momento de realizar el arqueo de caja." 
+                    ></i>
                 </div>
                 
-                <div class="card-body px-3 py-2">
+                <div class="card-body rounded rounded-top-0 px-3 py-3">
                     <form method="post">
                         {% csrf_token %}
-                        <div class="d-flex flex-column gap-1">
+                        <div class="bases-form-content">
 
-                            <fieldset class="rounded filter p-1">
-                                <label class="form-label m-0 w-100" for="valor_base">Monto :</label>
-                                <div class="input-group active-border-group">
+                            <fieldset class="rounded filter border border-0 p-1">
+                                <label class="form-label m-0 d-flex flex-row" 
+                                for="valor_base">
+                                    <p>Monto<p class="text-danger">*</p></p>
+                                </label>
+                                <div class="input-group active-border-group" id="group_monto">
                                     <span class="input-group-text px-1 bg-dark-light border border-dark">
                                         <i class="bi bi-currency-dollar"></i>
                                     </span>
-                                    <input placeholder="Digitar valor" id="valor_base" 
-                                    class="valor form-control border-0" autocomplete="off" required type="number" name="base_dia">
+                                    <input class="valor form-control border-0"
+                                    id="valor_base" 
+                                    name="base_dia"
+                                    placeholder="Digitar valor" 
+                                    type="number" 
+                                    autocomplete="off"
+                                    inputmode="numeric" 
+                                    required 
+                                    >
                                 </div>
                             </fieldset>
 
                             <fieldset class="rounded filter p-1">
-                                <label class="form-label m-0 w-100" for="observacion_base">Observacion</label>
+                                <label class="form-label m-0" for="observacion_base">Observacion: </label>
                                 <div class="input-group active-border-group">
                                     <span class="input-group-text px-1 bg-dark-light border border-dark">
                                         <i class="bi bi-pen"></i>
@@ -40,45 +90,33 @@
                             </fieldset>
 
                             <fieldset class="d-flex justify-content-end">
-                                <button class="btn btn-success border save-btn shadow-inset-left-bottom hover-lift" type="button" 
+                                <button class="btn-iniciar btn btn-outline-success border save-btn shadow-inset-left-bottom hover-lift clicker-btn rounded-circle" type="button" 
                                 {% if existe_base %} disabled {% endif %}
                                 data-msj_create="Guardar base por el monto de: $">
-                                    <i class="bi bi-save2 me-1"></i>Guardar
+                                    Iniciar <i class="bi bi-arrow-right"></i>
                                 </button>
                             </fieldset>
                         </div>
                     </form>
                 </div>
-            </section>
-
-            <!--Panel Alertas--> 
-            <section class="card text-center fw-bold jello-horizontal shadow-inset-left-bottom">
-                <div class="card-header warning-msj px-3 py-1 d-flex justify-content-between">
-                    <i class="bi bi-exclamation-diamond"></i>
-                    IMPORTANTE
-                    <i class="bi bi-exclamation-diamond"></i>
-                </div>
-                <div class="card-body">
-                    Es necesario ingresar el monto de la base para continuar
-                </div>
-            </section>
-        {% elif existe_base %}
-            <!--Panel Alertas--> 
-            <section class="card text-center fw-bold jello-horizontal shadow-inset-left-bottom">
-                <div class="card-header warning-msj px-3 py-1 d-flex justify-content-between">
-                    <i class="bi bi-exclamation-diamond"></i>
-                    IMPORTANTE
-                    <i class="bi bi-exclamation-diamond"></i>
-                </div>
-                <div class="card-body d-flex flex-column gap-2">
-                    El monto de la base ya fué registrado
-                    <a class="btn btn-success shadow-inset-left-bottom border hover-lift" href="{% url 'index' %}">
-                        Ir a la barra principal 
-                        <i class="bi bi-box-arrow-in-right"></i>
-                    </a>
-                </div>
-            </section>
+                
+            </div>
         {% endif %}
-    </main>
-    
+    </section>
+{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="{% static 'js/bases/main.js' %}"></script>
+<script>
+   
+    const input_monto = document.getElementById("valor_base");
+    const input_group = document.getElementById("group_monto");
+
+    input_monto.focus();
+
+    setTimeout(() => {
+        document.querySelector(".alert-base").classList.add("slide-out-blurred-top");
+    }, 5000);
+
+</script>
 {% endblock %}

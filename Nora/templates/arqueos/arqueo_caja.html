@@ -1,14 +1,18 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Generar Arqueo{% endblock %}
+
 {% block content %}
     <main class="p-3 pe-0 d-flex flex-column gap-3 align-items-center" id="page" 
     data-page="arqueos">
         <section class="card text-bg-secondary">
             <header class="card-header d-flex justify-content-between">
                 <h3 class="fw-bold">Arqueos</h3>
+                
                 <button class="btn btn-outline-warning" id="backButton">
                     <i class="bi bi-arrow-90deg-left me-1"></i> Volver
                 </button>
+
             </header>
             <!--Filtros y busqueda-->
             <div class="card-body">
@@ -39,8 +43,8 @@
         </section>
         <!--Tabla Arqueo-->
         <section class="card text-bg-secondary">
-            <div class="card-body" id="data-info" data-info="Visualizando Arqueo">
-                <table id="tabla-arqueo" class="table table-dark table-hover border">
+            <div class="card-body" id="data-info">
+                <table id="tabla-arqueo"  data-info="Visualizando Arqueo" class="table table-dark table-hover border">
                     <thead class="table-secondary">
                         <tr>
                             <th>Concepto</th>
@@ -81,4 +85,8 @@
             </div>
         </section>
     </main>
+{% endblock %}
+
+{% block extra_js %}
+    <script type="module" src="{% static 'js/arqueos/main.js' %}"></script>
 {% endblock %}
