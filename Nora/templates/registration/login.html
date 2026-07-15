@@ -13,25 +13,23 @@
 <body>
 
     {% if form.errors %}
-    <header>
+        <header>
 
-        <div class="alert alert-warning border-2 position-fixed alert-dismissible d-flex align-content-center fade show pt-2">
-            <span class="alert-text">
-                {{ form.non_field_errors }}
-            </span>
-            <button class="btn-close"
-            type="button" 
-            data-bs-dismiss="alert" 
-            aria-label="Close" 
-            title="Cerrar"></button>
-        </div>
+            <div class="alert alert-warning border-2 position-fixed alert-dismissible d-flex align-content-center fade show pt-2">
+                <span class="alert-text">
+                    {{ form.non_field_errors }}
+                </span>
+                <button class="btn-close"
+                type="button" 
+                data-bs-dismiss="alert" 
+                aria-label="Close" 
+                title="Cerrar"></button>
+            </div>
 
-    </header>
+        </header>
     {% endif %}
 
     <main class="row mx-0">
-
-        <!--Form-->
         <div class="pizza-form-container col-lg-6 col-12 p-0">
 
             <div class="pizza-container">
@@ -98,7 +96,7 @@
         <!--Submit-->
         <div class="submit-container col-lg-6 col-12">
 
-            <h1 class="unselect-text">Looney Pizza</h1>
+            <h1 class="unselect-text">Oroz Pizza</h1>
 
             <div class="d-flex justify-content-center p-3">
                 <button class="btn btn-sm btn-submit btn-outline-light shadow-inset-left-bottom  hover-lift clicker-btn active-border-group"
@@ -114,7 +112,7 @@
     </main>
 
     <footer class="bg-secondary-subtle text-center">
-        <em>© Looney Pizza - 2026</em>
+        <em>© Oroz Pizza - 2026</em>
     </footer> 
     
     <script src="{% static 'bootstrap/dist/js/bootstrap.min.js' %}"></script>

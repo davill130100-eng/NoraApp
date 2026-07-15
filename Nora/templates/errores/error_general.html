@@ -6,44 +6,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ERROR{% endblock %}</title>
     <!--Favicon Nora-->
-    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'icons/LooneyPizza.ico' %}">
     <!--CSS-->
     <link rel="stylesheet" href="{% static 'bootstrap/dist/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'bootstrap-icons/font/bootstrap-icons.css' %}">
-    <link rel="stylesheet" href="{% static 'css/local.css' %}">
-    <title>Error</title>
+    <link rel="stylesheet" href="{% static 'css/base_html/styles.css' %}">
 </head>
-<body class="body">
-    <main>
-        <!--Card Error-->
-        <section class="d-flex justify-content-center align-items-center flex-column vh-100">
-            <div class="card bg-danger bounce-in-top">
-                <header class="card-header">
-                    <h2 class="text-light">¡Ups! Algo salió mal</h2>
-                </header>
-                <div class="card-body">
-                    <p class="text-light">Hubo un error al procesar tu solicitud.</p>
-                    {% if error_message %}
-                        <div class="alert alert-danger">
-                            <p><strong>Error:</strong> {{ error_message }}</p>
-                        </div>
-                    {% endif %} 
-                </div>
-                <footer class="card-footer d-flex justify-content-between">
-                    <form action="{% url 'logout' %}" method="post">
-                        {% csrf_token %}
-                        <fieldset>
-                                <button type="submit" class="btn btn-dark">
-                                <i class="bi bi-box-arrow-in-left me-1"></i>Cerrar sesion
-                            </button>
-                        </fieldset>
-                    </form>
-                    <a class="btn btn-warning d-flex align-items-center" href="{% url 'index' %}">
-                        <i class="bi bi-arrow-90deg-left me-2"></i>Ir a Inicio
-                    </a>
-                </footer>
+<body>
+    <main class="d-flex justify-content-center align-items-center flex-column vh-100">
+        <div class="card neon-red-on bounce-in-top">
+            
+            <div class="card-header shadow-inset-left-bottom bg-danger-dark border-bottom border-danger">
+                <h2 class="text-light">¡Ups, Se quemó la pizza!</h2>
             </div>
-        </section>
+
+            <div class="card-body card-hf-shadow">
+                <p class="text-light">Hubo un error al procesar tu solicitud:</p>
+                {% if error_message %}
+                    <div class="alert alert-danger">
+                        <p><strong>Error:</strong> {{ error_message }}</p>
+                    </div>
+                {% endif %} 
+            </div>
+
+            <div class="card-footer bg-danger-dark shadow-inset-left-bottom d-flex justify-content-between border-top border-danger">
+
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-dark btn-oroz shadow-inset-left-bottom">
+                        Cerrar sesion<i class="bi bi-box-arrow-in-left ms-2"></i>
+                    </button>
+                </form>
+
+                <a class="btn btn-primary btn-oroz d-flex align-items-center shadow-inset-left-bottom" href="{% url 'barra' %}">
+                    Ir a la Barra<i class="bi bi-display ms-2"></i>
+                </a>
+            </div>
+
+        </div>
     </main>
 </body>
 </html>

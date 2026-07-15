@@ -1,27 +1,37 @@
 {% extends "base.html" %}
+
+{% load static %}
+
 {% block title %}Agregar Retiro{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/retiros/styles.css' %}">
+{% endblock %}
+
 {% block content %}
-    <main class="p-3 pe-0 d-flex flex-column gap-3 align-items-center" id="page"
-    data-page="Retiros" data-key_create="enable">
-        <section class="card text-bg-secondary mb-3">
-            <div class="card-header">
-                <h3 class="fw-bold">Agregar Retiro</h3>
-            </div>
-            <div class="card-body">
+    <section class="retiros-container d-flex flex-column gap-2 justify-content-center align-items-center p-2">
+        <div class="card card-shadow border border-warning border-opacity-50">
+            
+            {% include "components/cards/header/title_and_tooltip.html" with add_title="Agregar Retiro" tooltip_description="Ingrese el monto y motivo del retiro." %}
+           
+            <div class="card-body rounded rounded-top-0 p-3 card-body-shadow border-top-0">
                 <form method="post">
                     {% csrf_token %}
-                    <div class="d-flex flex-wrap flex-column gap-2">
-                        <fieldset class="filter rounded p-1">
+                    <div class="retiros-form-content">
+                        
+                        <fieldset class="rounded filter border border-0 p-1">
                             <label class="form-label" for="valor">Valor:</label>
                             <input class="valor form-control" type="number" id="valor" 
                             name="retiro_monto" placeholder="Digite un monto" required>
                         </fieldset>
+
                         <fieldset class="filter rounded p-1">
                             <label class="form-label" for="observacion">Observación:</label>
                             <textarea class="form-control" id="observacion" name="retiro_observacion" 
                             placeholder="Digite una observación" required></textarea>
                         </fieldset>
-                        <div class="d-flex justify-content-between gap-2">
+
+                        <fieldset class="d-flex justify-content-between gap-2">
                             <a class="btn btn-outline-danger border border-dark text-dark fw-bold"
                             href="{% url 'gestionar_retiros' %}">
                                 <i class="bi bi-x-circle me-1"></i>Cancelar
@@ -30,10 +40,14 @@
                             data-msj_create="Está seguro de grabar este retiro en $:">
                                 <i class="bi bi-save2 me-1"></i>Guardar
                             </button>
-                        </div>
+                        </fieldset>
+
                     </div>
                 </form>
             </div>
-        </section>
-    </main>
+
+        </div>
+    </section>
 {% endblock %}
+
+<!--TODO: Reestructurar plantillas a partir de componentes-->

@@ -1,0 +1,38 @@
+
+<div class="d-flex flex-wrap">
+
+    <form class="filter d-flex flex-column rounded p-2"
+    method="get" 
+    id="filtrar_registros">
+
+        {% csrf_token %}   
+                
+        <fieldset>
+            <label class="form-label m-0" 
+            for="desde">Fecha desde:</label>
+            <div class="input-group active-border-group">
+                <input class="form-control border-0" 
+                value="{{ request.GET.fecha_inicio }}"
+                id="desde" 
+                name="fecha_inicio" 
+                type="date"
+                >
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <label class="form-label m-0" 
+            for="hasta">Fecha hasta:</label>
+            <div class="input-group active-border-group">
+                <input class="form-control border-0" 
+                value="{{ request.GET.fecha_fin }}"
+                id="hasta" 
+                name="fecha_fin" 
+                type="date"
+                >
+            </div>   
+        </fieldset>
+
+    </form>
+
+</div>

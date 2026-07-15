@@ -1,4 +1,6 @@
 import { MesaUpdater } from "../UI/utils/MesasUpdater.js";
+import { NumberFormatter } from "../UI/utils/NumberFormatter.js";
+
 
 // ===============================
 //  CONSTANTES 
@@ -8,6 +10,8 @@ const INTERVALO = 1000;
 const MAX_INTENTOS = 3;
 const INACTIVIDAD_MAXIMA = 10000;
 const DEBUG = false;
+
+const NUMBER_FORMATTER_SELECTOR = "#format-number";
 
 // ===============================
 // APLICACION
@@ -21,9 +25,7 @@ try{
         debug: DEBUG
     });
     mesas.iniciar();
+    new NumberFormatter(NUMBER_FORMATTER_SELECTOR);
 } catch (error) {
-    console.error(
-        "--Gestión Ajax Actualizar mesas, Error:",
-        error
-    );
+    console.error(error);
 }

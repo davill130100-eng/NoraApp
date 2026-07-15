@@ -1,99 +1,114 @@
 {% extends "base.html" %}
+
+{% load static %}
+
+{% load humanize %}
+
 {% block title %}Gestionar Retiros{% endblock %}
-{% block content %}
-    <main class="w-100 p-3 ps-2 pe-0 d-flex flex-column gap-3" id="page" 
-    data-page="Retiros" data-tables="enable" data-key_delete="enable">
-    <section class="card text-bg-secondary">
-        <div class="card-header">
-            <div class="d-flex justify-content-between">
-                <h3 class="fw-bold">Gestionar Retiros</h3>
-                <!--Agregar retiro-->
-                <a class="btn btn-outline-primary border text-light d-flex"
-                 href="{% url 'agregar_retiro' %}">
-                    <i class="bi bi-plus-square me-1"></i>Agregar
-                </a>
-            </div>
-        </div>
-            <!--Filtros de busqueda-->
-            <div class="card-body">
-                <form method="get">
-                    {% csrf_token %}
-                    <h5 class="fw-bold">Busca registros por:</h5>
-                    <div class="d-flex flex-wrap gap-2">
-                        <fieldset class="filter rounded p-1">
-                            <label class="form-label">Fecha desde</label>
-                            <input class="form-control" type="date" name="fecha_inicio" value="{{ request.GET.fecha_inicio }}">
-                        </fieldset>
-                        <fieldset class="filter rounded p-1">
-                            <label class="form-label">Fecha hasta</label>
-                            <input class="form-control" type="date" name="fecha_fin" value="{{ request.GET.fecha_fin }}">
-                        </fieldset>
-                        <fieldset class="d-flex align-items-end">
-                            <button class="btn btn-outline-success border text-light" type="submit">Buscar</button>
-                        </fieldset>
-                    </div>
-                </form>
-            </div>
-        </section>
-        <!--Tabla Retiros de caja-->
-        <section class="card text-bg-secondary p-3">
-            <table id="mi-tabla" class="table table-dark 
-            table-hover border border-secondary">
-                <thead class="table-secondary">
-                    <tr>
-                        <th class="text-start border-end border-dark">#</th>
-                        <th class="text-start">Valor</th>
-                        <th class="text-start">Observaciones</th>
-                        <th class="text-satrt">Creado</th>
-                        {% if request.user.is_superuser %}
-                            <th class="text-satrt">Estado</th>
-                            <th class="text-start">Responsable</th>
-                            <th class="text-start">Acciones</th>
-                        {% endif %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for rt in retiros %}
-                        <tr>
-                            <td class="text-start border-end border-secondary">{{ forloop.counter }}</td>
-                            <td class="text-start format-numbers">{{ rt.retiro_monto }}</td>
-                            <td class="text-start">{{ rt.retiro_observacion }}</td>
-                            <td class="text-start">
-                                <i class="bi bi-calendar2-check" data-bs-toggle="tooltip" 
-                                data-bs-placement="top" data-bs-title="{{ rt.creado_en }}"></i>
-                            </td>
-                            {% if request.user.is_superuser %}
-                                <td class="text-start">
-                                    {% if rt.actualizado_en %} 
-                                        <i class="bi bi-pencil-square text-warning" data-bs-toggle="tooltip" 
-                                        data-bs-placement="top" data-bs-title="{{ rt.actualizado_en }}"></i>
-                                    {% else %}
-                                        <i class="bi bi-check-square text-success"></i>
-                                    {% endif %}
-                                </td>
-                                <td class="text-start">{{ rt.usuario.username|default:"?" }}</td>
-                                <td class="text-start">
-                                    <a class="btn btn-sm btn-outline-warning" href="{% url 'editar_retiro' rt.id %}"
-                                    data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Editar">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <a class="btn btn-sm btn-outline-danger delete-btn"
-                                    data-id="{{ rt.id }}"
-                                    data-delete_url="eliminar/{{ rt.id }}/"
-                                    data-msj_delete="Está seguro que desea eliminar el retiro: {{ rt.retiro_observacion }}"
-                                    data-bs-toggle="tooltip" 
-                                    data-bs-placement="right" 
-                                    data-bs-title="Eliminar">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </td>
-                            {% endif %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </section>
-    </main>
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/retiros/styles.css' %}">
 {% endblock %}
 
+{% block content %}
+    <section class="retiros-container h-100 d-flex flex-row">
 
+        <!--Filtros Retiros-->
+        <div class="filters-panel p-3">
+            <div class="card-shadow border border-warning border-opacity-50 card h-100">
+
+                {% include "components/cards/header/title_and_btn_action.html" with panel_title="Retiros" btn_hide=False btn_color="warning" btn_id="backButton" btn_icon="bi-arrow-90deg-left" btn_text="Volver" %}
+                
+                <div class="card-body card-body-shadow bg-dark">
+
+                    <h5 class="fw-bold text-warning">Buscar registros por:</h5>
+
+                    {% include "components/cards/body/form/filter_date.html" %}
+
+                </div>
+
+                {% include "components/cards/footer/only_search_btn.html" %}
+
+            </div>
+        </div>
+
+        <!--Registros Retiros-->
+        <div class ="data-panel ps-0 p-3 w-100">
+            <div class="card-shadow card border border-warning border-opacity-50 h-100">
+                
+                {% include "components/cards/header/title_and_btn_action.html" with panel_title="Registros" btn_hide=True btn_url="agregar_retiro" btn_color="primary" btn_id="addBtn" btn_icon="bi-plus-square" btn_text="Agregar" %}
+                
+                <div class="card-body card-body-shadow bg-dark">
+                    <table class="table table-dark table-hover"
+                    id="mi-tabla">
+
+                        <thead class="table-secondary">
+                            <tr>
+                                {% include "components\cards\body\table\th_forloop.html" with text="#" %}
+
+                                 {% include "components\cards\body\table\th_general.html" with text="MONTO" %}
+
+                                {% include "components\cards\body\table\th_general.html" with text="CONCEPTO" %}
+
+                                {% include "components\cards\body\table\th_general.html" with text="FECHA" %}
+
+                                {% if request.user.is_superuser %}
+                                    {% include "components\cards\body\table\th_general.html" with text="ESTADO" %}
+
+                                    {% include "components\cards\body\table\th_general.html" with text="RESPONSABLE" %}
+
+                                    {% include "components\cards\body\table\th_btns_action.html" with text="ACCION" %}
+                                {% endif %}
+                            </tr>
+                        </thead>
+
+                        <tbody class="rounded">
+                            {% for rt in retiros %}
+                                <tr class="rounded">
+                                    {% include "components/cards/body/table/td_forloop.html" %}
+
+                                    {% include "components/cards/body/table/td_format_num.html" with data=rt.retiro_monto %}
+                                    
+                                    {% include "components/cards/body/table/td_general.html" with data=rt.retiro_observacion %}
+
+                                    {% include "components/cards/body/table/td_general.html" with data=rt.creado_en %}
+
+                                    {% if request.user.is_superuser %}
+
+                                        {% include "components/cards/body/table/td_tooltip_date_edit.html" with data_edit=rt.actualizado_en %}
+                                        
+                                        {% include "components/cards/body/table/td_general.html" with data=rt.usuario.username|default:"?" %}
+
+                                        <td class="text-start bg-secondary-subtle rounded-bottom-1 rounded-start-0">
+
+                                            {% include "components/buttons/edit_row_button.html" with to_url="editar_retiro" data_id=rt.id %}
+
+                                            {% include "components/buttons/delete_row_button.html" with data_delete_url="eliminar_retiro" data_id=rt.id data_msj_delete="Está seguro que desea eliminar el retiro: '"|add:rt.retiro_observacion %}
+
+                                        </td>
+
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+
+                    </table>
+                </div>
+
+                <div class="card-footer card-hf-shadow bg-black border-warning border-opacity-50 border-top d-flex justify-content-between">
+
+                    <h5 class="fw-bold m-0 text-warning">Herramientas</h5>
+
+                    <!--TODO: Agregar botones herramientas: Calculadora, manual, etc-->
+
+                        <div class="d-flex gap-2">
+                        {% include "components/buttons/general_button.html" with btn_color="btn-light" btn_id="btn_manual" icon_class="bi-book" text_btn="Manual" %}
+                        </div>
+                    
+                </div>
+
+            </div>
+        </div>
+
+    </section>
+{% endblock %}

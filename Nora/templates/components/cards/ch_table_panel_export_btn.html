@@ -1,0 +1,13 @@
+{% load static %}
+
+<a href="{% if button_disabled %}#{% else %}{{ button_href|default:'#' }}{% endif %}"
+class="btn btn-sm btn-primary btn-oroz shadow-inset-left-bottom hover-lift clicker-btn{% if button_disabled %} disabled{% endif %}"
+{% if button_disabled %}
+    aria-disabled="true"
+    tabindex="-1"
+    onclick="return false;"
+{% endif %}>
+
+    <i class="bi bi-file-arrow-up me-1"></i>Exportar
+
+</a>

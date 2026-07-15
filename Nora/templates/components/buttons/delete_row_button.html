@@ -1,0 +1,13 @@
+{% load static %}
+
+<a class="btn btn-sm btn-danger btn-oroz hover-lift shadow-inset-left-bottom clicker-btn delete-btn"
+   data-id="{{ data_id }}"
+   data-delete_url="{% url data_delete_url data_id %}"
+   data-msj_delete="'{{ data_msj_delete }}'"
+   data-bs-toggle="tooltip"
+   data-bs-placement="right"
+   data-bs-title="Eliminar">
+
+    <i class="bi bi-trash"></i>
+    
+</a>

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load humanize %}
 {% load static %}
 
 {% block title %}Barra{% endblock %}
@@ -7,27 +8,35 @@
     <link rel="stylesheet" href="{% static 'css/barra/styles.css' %}">
 {% endblock %}
 
-<!-- TODO: Implementar barrasy mesas en conjunto-->
 {% block content %}
-    <section class="mesas-container p-3"
+    <section class="mesas-container"
     id="data-url" 
     data-url="{% url 'obtener_mesas' %}">
         {% for mesa in mesas %}
             <a class="link-underline link-underline-opacity-0  mesa-{{ mesa.numero_mesa }}"
             href="#">
 
-                <div class="card-mesa card {% if mesa.numero_mesa in barras %} bg-secondary-subtle {% endif %}">
+                <div class="card-mesa card text-warning border-warning border-opacity-25 {% if mesa.numero_mesa in barras %} bg-secondary-subtle {% endif %}">
+                   
                     <div class="card-header">
-                        <span class="badge text-bg-warning rounded-pill mesa-badge d-none shadow-inset-left-bottom">
+                        <span class="badge text-bg-warning rounded-pill border-light border-opacity-50 mesa-badge d-none shadow-inset-left-bottom">
                             <i class="bi bi-currency-dollar me-1"></i>
-                            <small class="me-1">{{ mesa.total_pedido }}</small>
+                            <small class="me-1 format-number">{{ mesa.total_pedido|intcomma }}</small>
                         </span>
                         <img src="{% static 'img/logo.png' %}" class="card-img-top">
                     </div>
-                    <div class="card-body border-top text-center p-0">
-                        <h4 class="m-0">{% if mesa.numero_mesa in barras %} LLEVAR  {% else %} Mesa {{ mesa.numero_mesa }} {% endif %}</h4>
+
+                    <div class="card-body border-top text-center py-2 px-0">
+                        <h4 class="m-0">
+                            {% if mesa.numero_mesa in barras %}
+                                Llevar {{ mesa.numero_barra }}
+                            {% else %}
+                                Mesa {{ mesa.numero_mesa }}
+                            {% endif %}
+                        </h4>
                         <p class="m-0">{% if mesa.estado_mesa == 1 %}Ocupada{% else %}Disponible{% endif %}</p>
                     </div>
+                    
                 </div>
 
             </a>

@@ -1,0 +1,48 @@
+/** ===============================
+** RETIROS > STYLES.CSS
+**
+** Estilos exclusivos de las plantillas
+** gestionar_retiros.html, agregar_retiro.html, editar_retiro.html
+** ================================*/
+
+
+.retiros-container {
+  flex: 1;
+}
+
+.retiros-form-content {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.btn-save, .btn-cancel {
+    border-radius: 20px !important;
+}
+
+.table-container{
+  overflow-y: scroll;
+}
+
+@media (max-width: 575.98px) {
+  .bases-form-content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .btns-action{
+    flex-direction: row !important;
+  }
+}
+
+@media (max-width: 944.98px) {
+  .bases-container{
+    flex-direction: column !important;
+    overflow-x: scroll !important;
+  }
+
+  .data-panel{
+    padding-top: 0 !important;
+    padding-left: 16px !important;
+  }
+}

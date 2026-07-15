@@ -1,7 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login as auth_login
 from django.contrib import messages
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import DatabaseError, IntegrityError
 from django.db.models import Sum
 from django.http import JsonResponse
@@ -14,35 +13,43 @@ import json
 
 from .models import Producto, Grupo, Mesa, Pedido, PedidoProducto, Base, Retiro, Cierre
 
-from .utils.login import auth_form, base_validator
-from .utils.pedidos import sum_total_pedidos_utils, percent_by_status_pedido_utils
+from .utils.login import auth_form
+from .utils.pedidos import sum_total_pedidos_utils, percent_by_status_pedido_utils, total_by_status_pedido_utils
+from .utils.dates import query_date_range, validate_base_today
+from .utils.validations import monto_observation_required
 
 # =======================
 # LOGIN
 # =======================
+# ** Finalizado
 def login(request):
     try:
         if request.method == 'POST':
+
             form = auth_form.CustomAuthenticationForm(
                 request,
                 data=request.POST
             )
 
             if form.is_valid():
+
                 user = form.get_user()
                 auth_login(request, user)
 
-                if base_validator.verify(Base):
+                if validate_base_today.verify(Base):
+
                     messages.success(
                         request,
                         f'Bienvenido {user.username}'
                     )
-                    return redirect('index')
 
+                    return redirect('index')
+            
                 messages.warning(
                     request,
-                    'Es necesario ingresar el Monto para iniciar.'
+                    'Es necesario ingresar el Monto para continuar.'
                 )
+
                 return redirect('agregar_base')
 
         else:
@@ -62,9 +69,11 @@ def login(request):
     )
 
 # =======================
-# PRINCIPAL
+# DASHBOARD
 # =======================
+# !! Pendiente: Desarrollar funcionalidades para informe: - 3 Productos mas vendidos en el mes, - 3 Insumos proximos a agotarse, - dia de la semana con menor venta en el mes
 @login_required
+@base_today_required
 def index(request):
     try:
         total_venta_del_dia = sum_total_pedidos_utils.calculate(
@@ -74,16 +83,25 @@ def index(request):
         )
 
         porcentajes_medio_pago = percent_by_status_pedido_utils.calculate(
-        Pedido,
+            Pedido,
             "creado_en",
             "total_pedido",
             "estado_pedido",
-            [2, 3, 4]
+            [2, 3, 4, 5]
+        )
+
+        totales_por_estado = total_by_status_pedido_utils.calculate(
+            Pedido,
+            "creado_en",
+            "total_pedido",
+            "estado_pedido",
+            [2, 3, 4, 5]
         )
 
         context = {
             'total_pedidos_hoy': total_venta_del_dia,
-            'porcentajes': porcentajes_medio_pago
+            'porcentajes': porcentajes_medio_pago,
+            'totales': totales_por_estado
         }
         
         return render(request, 'index/index.html', context)
@@ -93,25 +111,36 @@ def index(request):
 # =======================
 # BARRA
 # =======================
+# ** Finalizado
 @login_required
 @base_today_required
 def barra(request):
     try:
         mesas = Mesa.objects.all().order_by('numero_mesa')
         barras = [100, 101, 102, 103, 104, 105]
+
+        for mesa in mesas:
+            if mesa.numero_mesa in barras:
+                mesa.numero_barra = mesa.numero_mesa - 99
+            else:
+                mesa.numero_barra = None
+
         context = {
             'mesas' : mesas,
-            'barras' : barras
+            'barras' : barras,
         }
-        return render(request, 'barra/barra.html', context)   
+
+        return render(request, 'barra/barra.html', context)  
+     
     except Exception as e:
         return render(request, 'errores/error_general.html', {'error_message': str(e)})
 
+# ** Finalizado
 @login_required
 @base_today_required
 def obtener_mesas(request):
     try:
-        mesas = Mesa.objects.all().order_by('numero_mesa')
+        mesas = Mesa.objects.all().order_by('numero_mesa')[:25]
         data = []
         for mesa in mesas:
             pedido = Pedido.objects.filter(numero_pedido=mesa.pedido_asociado).first() if mesa.pedido_asociado else None
@@ -128,177 +157,244 @@ def obtener_mesas(request):
         messages.error(request, f'Error al obtener las mesas: {str(e)}')
         return JsonResponse({'error': str(e)}, status=500)
 
-
 # =======================
 # BASES
 # =======================
+# ** Finalizado
 @login_required
 @base_today_required
 def gestionar_bases(request):
     try:
-        bases = Base.objects.all().order_by('-creado_en')
         fecha_inicio = request.GET.get('fecha_inicio')
         fecha_fin = request.GET.get('fecha_fin')
+
         if fecha_inicio and fecha_fin:
-            fecha_inicio_dt = datetime.strptime(fecha_inicio, '%Y-%m-%d')
-            fecha_fin_dt = datetime.strptime(fecha_fin, '%Y-%m-%d') + timedelta(days=1) - timedelta(seconds=1)
-            bases = bases.filter(creado_en__range=[fecha_inicio_dt, fecha_fin_dt])
-    
+            query_date_config = {
+                'start': fecha_inicio,
+                'end': fecha_fin,
+                'data': Base.objects.all()
+            }
+
+            bases = query_date_range.calc(query_date_config)
+
+        else:
+            bases = Base.objects.all().order_by('-creado_en')[:100]
+
     except Exception as e:
-        return render(request, 'errores/error_general.html', {'error_message': str(e)})
+        return render(
+            request,
+            'errores/error_general.html',
+            {'error_message': str(e)}
+        )
+
+    return render(
+        request,
+        'bases/gestionar_bases.html',
+        {'bases': bases}
+    )
     
-    return render(request, 'bases/gestionar_bases.html', {'bases': bases})
-    
+# ** Finalizado
 @login_required
 def agregar_base(request):
-    # Validar existencia de una base para el dia actual
-    hoy = localtime(now()).date()
-    inicio_dia = make_aware(datetime.combine(hoy, datetime.min.time()))  # 00:00:00
-    fin_dia = make_aware(datetime.combine(hoy, datetime.max.time()))    # 23:59:59
-    existe_base = Base.objects.filter(creado_en__range=(inicio_dia, fin_dia)).exists()
+    base_exists = validate_base_today.verify(Base)
+
     try:
         if request.method == 'POST':  
-            base_dia = request.POST.get('base_dia')
+
+            monto = request.POST.get('base_dia')
             observacion = request.POST.get('base_observacion')
-            if existe_base:
+
+            if base_exists:
+
                 messages.warning(request, 'Ya existe una base para el dia hoy')
                 return redirect('index')
+            
             else:
                 try:
-                    if not base_dia or not base_dia.strip():
-                        raise ValueError('El monto de la base es requerido')
-                    base_dia = int(base_dia)
-                    if base_dia < 0:
-                        raise ValueError(f'{base_dia} no es un valor válido')
-                    base = Base(
-                        base_dia=base_dia,
-                        base_observacion=observacion,
-                        usuario=request.user
-                    )
-                    base.save()
-                    # messages.success(request, f'La base fue grabada en ${base_dia}')
-                    return redirect('index')
+
+                    if monto_observation_required.verify(
+                        monto, observacion, False, True
+                    ):
+                   
+                        base = Base(
+                            base_dia=monto,
+                            base_observacion=observacion,
+                            usuario=request.user
+                        )
+
+                        base.save()
+
+                        messages.success(request, f'Bienvenido {request.user}')
+
+                        return redirect('index')
+                
                 except (ValueError, TypeError) as e:
                     messages.error(request, f'Error: {str(e)}')
                     return redirect('agregar_base')
     
     except Exception as e:
+
         return render(request, 'errores/error_general.html', {'error_message': str(e)})
     
-    return render(request, 'bases/agregar_base.html', {'existe_base': existe_base})
+    return render(request, 'bases/agregar_base.html', {'existe_base': base_exists})
 
+# ** Finalizado
 @login_required
 @base_today_required
 def editar_base(request, base_id):
     try:
+
         base = get_object_or_404(Base, id=base_id)
-        if request.method == 'POST':    
-            base_dia = request.POST.get('base_dia')
+
+        if request.method == 'POST':
+
+            monto = request.POST.get('base_dia')
             observacion = request.POST.get('base_observacion')
             usuario = request.user
+
             try: 
-                if not base_dia or not base_dia.strip():
-                    raise ValueError('El monto de la base es requerido')
-                base_dia = int(base_dia)
-                if base_dia < 0:
-                    raise ValueError(f'{base_dia} no es un valor válido')
-                now = timezone.now()
-                base.base_dia= base_dia
-                base.base_observacion = observacion
-                base.usuario = usuario
-                base.actualizado_en = now
-                base.save()
-                messages.success(request, f'La base fue actualizada en ${base_dia}')
+
+                if monto_observation_required.verify(
+                    monto, observacion
+                ):
+                
+                    now = timezone.now()
+
+                    base = Base(
+                        base_dia=monto,
+                        base_observacion=observacion,
+                        usuario=usuario,
+                        actualizado_en=now
+                    )
+                
+                    base.save()
+
+                messages.success(request, f'Base actualizada en ${monto}')
+
                 return redirect('gestionar_bases') 
+            
             except (ValueError, TypeError) as e:
+
                 messages.error(request, f'Error: {str(e)}')
                 return redirect('editar_base', base_id=base_id)
     
     except Exception as e:
+
         return render(request, 'errores/error_general.html', {'error_message': str(e)})
     
     return render(request, 'bases/editar_base.html', {'base': base})
 
-
-#RRETIROS DE CAJA
+# =======================
+# RRETIROS DE CAJA
+# =======================
+# !! Pendiente: Ajustar respomnsive en plantilla.
 @login_required
 @base_today_required
 def gestionar_retiros(request):
     try:
-        retiros = Retiro.objects.all().order_by('-creado_en')
         fecha_inicio = request.GET.get('fecha_inicio')
         fecha_fin = request.GET.get('fecha_fin')
-        if fecha_inicio and fecha_fin:
-            fecha_inicio_dt = datetime.strptime(fecha_inicio, '%Y-%m-%d')
-            fecha_fin_dt = datetime.strptime(fecha_fin, '%Y-%m-%d') + timedelta(days=1) - timedelta(seconds=1)
-            retiros = retiros.filter(creado_en__range=[fecha_inicio_dt, fecha_fin_dt])
-    except Exception as e:
-        return render(request, 'errores/error_general.html', {'error_message': str(e)})
-    
-    return render(request, 'retiros/gestionar_retiros.html', {'retiros': retiros})
 
+        if fecha_inicio and fecha_fin:
+            
+            query_date_config = {
+                'start': fecha_inicio,
+                'end': fecha_fin,
+                'data': Retiro.objects.all()
+            }
+
+            retiros = query_date_range.calc(query_date_config)
+
+        else:
+            retiros = Retiro.objects.all().order_by('-creado_en')[:100]
+
+    except Exception as e:
+        return render(
+            request,
+            'errores/error_general.html',
+            {'error_message': str(e)}
+        )
+
+    return render(
+        request,
+        'retiros/gestionar_retiros.html',
+        {'retiros': retiros}
+    )
+
+# !! Pendiente: Actualizar interfaz en plantilla.
 @login_required
 @base_today_required
 def agregar_retiro(request):
     try:
         if request.method == 'POST':
-            valor = request.POST.get('retiro_monto')
+
+            monto = request.POST.get('retiro_monto')
             observacion = request.POST.get('retiro_observacion')
+
             try:
-                if not valor or not valor.strip():
-                    raise ValueError('El monto del retiro es requerido')
-                valor = int(valor)
-                if valor < 0:
-                    raise ValueError(f'{valor} no es un valor válido')
-                if not observacion or not observacion.strip():
-                    raise ValueError('Es necesario ingresar una observación')
-                retiro = Retiro(
-                    retiro_monto=valor,
-                    retiro_observacion=observacion,
-                    usuario=request.user
-                )
-                retiro.save()
-                messages.success(request, f'Retiro "{observacion}" grabado exitosamente.')
-                return redirect('gestionar_retiros')
+
+                if monto_observation_required.verify(monto, observacion, True):
+
+                    retiro = Retiro(
+                        retiro_monto=monto,
+                        retiro_observacion=observacion,
+                        usuario=request.user
+                    )
+
+                    retiro.save()
+
+                    messages.success(request, f'Retiro "{observacion}" guardado.')
+
+                    return redirect('gestionar_retiros')
+            
             except (ValueError, TypeError) as e:
+
                 messages.error(request, f'Error: {str(e)}')
                 return redirect('agregar_retiro')
 
     except Exception as e:
+
         return render(request, 'errores/error_general.html', {'error_message': str(e)})
     
     return render(request, 'retiros/agregar_retiro.html')
 
+# !! Pendiente: Actualizar interfaz en plantilla.
 @login_required
 @base_today_required
 def editar_retiro(request, retiro_id):
     try:
         retiro = get_object_or_404(Retiro, id=retiro_id)
+
         if request.method == 'POST':
-            valor = request.POST.get('retiro_monto')
+
+            monto = request.POST.get('retiro_monto')
             observacion = request.POST.get('retiro_observacion')
-            usuario = request.user
+
             try:
-                if not valor or not valor.strip():
-                    raise ValueError('El monto del retiro es requerido')
-                valor = int(valor)
-                if valor < 0:
-                    raise ValueError(f'{valor} no es un valor válido')
-                if not observacion or not observacion.strip():
-                    raise ValueError('Es necesario ingresar una observación')
-                now = timezone.now()
-                retiro.retiro_monto = valor
-                retiro.retiro_observacion = observacion
-                retiro.usuario = usuario
-                retiro.actualizado_en = now
-                retiro.save()
-                messages.success(request, f'Retiro "{observacion}" actualizado exitosamente.')
-                return redirect('gestionar_retiros')
+                if monto_observation_required.verify(monto, observacion, True):
+                
+                    now = timezone.now()
+                    
+                    retiro = Retiro(
+                        retiro_monto=monto,
+                        retiro_observacion=observacion,
+                        usuario=request.user,
+                        actualizado_en=now
+                    )
+
+                    retiro.save()
+
+                    messages.success(request, f'Retiro "{observacion}" actualizado.')
+
+                    return redirect('gestionar_retiros')
+            
             except (ValueError, TypeError) as e:
+
                 messages.error(request, f'Error: {str(e)}')
                 return redirect('editar_retiro', retiro_id=retiro_id)
 
     except Exception as e:
+
         return render(request, 'errores/error_general.html', {'error_message': str(e)})
     
     return render(request, 'retiros/editar_retiro.html', {'retiro': retiro})
@@ -308,12 +404,19 @@ def editar_retiro(request, retiro_id):
 def eliminar_retiro(request, retiro_id):
     try:
         retiro = get_object_or_404(Retiro, id=retiro_id)
+
         retiro.delete()
-        messages.success(request, f'Retiro "{retiro.retiro_observacion}" eliminado exitosamente.')
+        messages.success(request, f'Retiro "{retiro.retiro_observacion}" eliminado.')
+
     except Exception as e:
+
         messages.error(request, f'Error: {e}')
+
     return redirect('gestionar_retiros')
 
+
+
+#!! Por Refactorizar y actualizar:
 
 #ARQUEO DE CAJA
 @login_required
@@ -667,7 +770,7 @@ def gestionar_pedidos(request):
             fecha_inicio_dt = datetime.strptime(fecha_inicio, '%Y-%m-%d')
             fecha_fin_dt = datetime.strptime(fecha_fin, '%Y-%m-%d') + timedelta(days=1) - timedelta(seconds=1)
             pedidos = pedidos.filter(creado_en__range=[fecha_inicio_dt, fecha_fin_dt])
-        if medio_pago in ['2', '3', '4']:
+        if medio_pago in ['2', '3', '4', '5']:
             pedidos = pedidos.filter(estado_pedido=medio_pago)
 
     except Exception as e:
@@ -736,7 +839,7 @@ def agregar_pedido(request, numero_mesa=None):
                 mesa.pedido_asociado = siguiente_numero_pedido
                 messages.info(request, f'Mesa {numero_mesa}, Pedido #{siguiente_numero_pedido}, comandado exitosamente')
             mesa.save()
-            return redirect('index')
+            return redirect('barra')
 
     except Exception as e:
         return render(request, 'errores/error_general.html', {'error_message': str(e)})
@@ -751,6 +854,8 @@ def agregar_pedido(request, numero_mesa=None):
         'grupos': grupos,
         'productos': productos,
         'mesa_seleccionada': numero_mesa,
+        'es_barra': numero_mesa in [100, 101, 102, 103, 104, 105],
+        'numero_barra': numero_mesa - 99 if numero_mesa in [100, 101, 102, 103, 104, 105] else None,
         'siguiente_numero_pedido': siguiente_numero_pedido
     })
 

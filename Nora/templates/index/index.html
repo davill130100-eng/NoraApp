@@ -1,11 +1,80 @@
 {% extends "base.html" %}
+
 {% load static %}
 {% load humanize %}
-{% block title %}Principal{% endblock %}
+{% load progress_bar_chart %}
+{% load input_price_readonly %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/index/styles.css' %}">
+{% endblock %}
+
 {% block content %}
-    <section class="border h-100 m-0">
-        
-    </section>
-{% endblock %}|
+<section class="index-container d-flex flex-column gap-3">
+
+    <!--* Ventas actuales-->
+    <div class="card-dashboard card border border-warning border-opacity-50">
+
+        <div class="card-hf-shadow card-header bg-black d-flex justify-content-between border-bottom border-warning border-opacity-50">
+            <h2 class="fs-4 m-0 text-warning">Venta Actual</h2>
+            <i class="bi bi-info-circle text-info" data-bs-toggle="tooltip" data-bs-position="top"
+                data-bs-title="Visualiza la sumatoria de ventas del día actual
+                y el porcentaje de ventas por método de pago.
+                "></i>
+        </div>
+
+        <div class="card-dashboard-body card-body-shadow card-body d-flex-flex-column rounded-bottom">
+             <h1 class="text-green-neon">$ {{ total_pedidos_hoy|intcomma }}</h1>
+
+            <div class="d-flex flex-row">
+                <div class="d-flex flex-column gap-3 p-0 w-75">
+
+                    {% progress_bar_chart label="EFECTIVO" border_class="border-success" value=porcentajes.2 %}
+
+                    {% progress_bar_chart label="NEQUI" border_class="border-pink" value=porcentajes.3 progress_class="bg-pink" %}
+
+                    {% progress_bar_chart label="DAVIPLATA" border_class="border-red" value=porcentajes.4 progress_class="bg-red" %}
+
+                    {% progress_bar_chart label="TARJETA" border_class="border-primary" value=porcentajes.5 progress_class="bg-primary" %}
+
+                </div>
+
+                <div class="w-25 d-flex flex-column gap-3 align-items-center justify-content-start px-2">
+
+                    {% input_price_readonly value=totales.2 bg_border_class="bg-success-subtle border-success" %}
+
+                    {% input_price_readonly value=totales.3 bg_border_class="bg-pink-subtle border-pink" %}
+
+                    {% input_price_readonly value=totales.4 bg_border_class="bg-red-subtle border-red" %}
+
+                    {% input_price_readonly value=totales.5 bg_border_class="bg-primary-subtle border-primary" %}
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!--* Productos-->
+    <div class="card-dashboard card border h-100 border-warning border-opacity-50">
+
+            <div class="card-header card-hf-shadow bg-black d-flex justify-content-between border-bottom border-warning border-opacity-50">
+                <h2 class="fs-4 text-warning m-0">Informe</h2>
+                <i class="bi bi-info-circle text-info" data-bs-toggle="tooltip" data-bs-position="top"
+                data-bs-title="Visualiza el producto mas vendido y los 3 insumos mas proximos a agotarse.
+                "></i>
+            </div>
+
+            <div class="card-dashboard-body card-body-shadow card-body d-flex-flex-column rounded-bottom">
+
+            </div>
+            
+    </div>
 
 
+    <!--TODO: Agrear 3 tarjetas de resumen para producto mas vendido, metrica de ventas de la semana y 3 insumos proximos a agotarse-->
+
+</section>
+{% endblock %}

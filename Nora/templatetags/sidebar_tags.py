@@ -4,7 +4,6 @@ from django.templatetags.static import static
 
 register = template.Library()
 
-
 @register.inclusion_tag("components/sidebar/anchor_customizable_component.html", takes_context=True)
 def sidebar_anchor_component(context, url_name, icon_id, data_path, title):
     request = context["request"]

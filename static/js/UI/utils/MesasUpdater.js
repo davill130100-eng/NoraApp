@@ -141,14 +141,15 @@ export class MesaUpdater {
 
                 const mesaElement = $(".mesa-" + mesa.numero_mesa);
                 const cardElement = mesaElement.find(".card");
+                const cardElementHeader = mesaElement.find(".card-header");
                 const spanInfo = mesaElement.find(".badge");
                 const linkElement = mesaElement;
 
                 if (mesa.estado_mesa == 1) {
 
                     cardElement
-                        .removeClass("bg-navbar text-light")
-                        .addClass("text-bg-danger");
+                        .removeClass("text-warning border-warning border-opacity-25")
+                        .addClass("text-ligth bg-danger-subtle border-danger");
 
                     spanInfo.removeClass("d-none");
 
@@ -171,8 +172,8 @@ export class MesaUpdater {
                 } else {
 
                     cardElement
-                        .removeClass("text-bg-danger")
-                        .addClass("bg-navbar text-light");
+                        .removeClass("text-ligth bg-danger-subtle border-danger")
+                        .addClass(" text-warning border-warning border-opacity-25");
 
                     spanInfo.addClass("d-none");
 

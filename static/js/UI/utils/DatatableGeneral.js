@@ -16,6 +16,8 @@ export class DataTableES {
     init() {
         $(this.selector).DataTable({
             responsive: true,
+            scrollY: 'calc(100vh - 320px)',
+            scrollCollapse: true,
             paging: true,
             searching: false,
             ordering: false,

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+
 {% load static %}
 
 {% block title %}Agregar Base{% endblock %}
@@ -7,52 +8,14 @@
     <link rel="stylesheet" href="{% static 'css/bases/styles.css' %}">
 {% endblock %}
 
-{% block extra_header %}
-    <section class="d-flex flex-column gap-2 pt-3 justify-content-center align-items-center">
-        <div class="alert-base card text-center fw-bold jello-horizontal">
-        
-            <div class="card-header warning-msj px-3 py-1 d-flex justify-content-between">
-                <i class="bi bi-exclamation-diamond"></i>
-                IMPORTANTE
-                <i class="bi bi-exclamation-diamond"></i>
-            </div>
-
-            {% if not existe_base %}
-                <div class="card-body border border-warning rounded-bottom">
-                    Es necesario ingresar el <span class="badge bg-light border text-dark border-secondary rounded">Monto</span> para iniciar.
-                </div>
-            {% endif %}
-            
-            {% if existe_base %}
-                <div class="card-body d-flex flex-column gap-2">
-                    El monto de la base ya fué registrado
-                    <a class="btn btn-success shadow-inset-left-bottom border hover-lift" href="{% url 'index' %}">
-                        Ir a la barra principal 
-                        <i class="bi bi-box-arrow-in-right"></i>
-                    </a>
-                </div>
-            {% endif %}
-
-            </div>
-    </section>
-{% endblock %}
-
 {% block content %}
     <section class="bases-container d-flex flex-column gap-2 justify-content-center align-items-center p-2">
         {% if not existe_base %}
-            <div class="card-bases card border border-success border-opacity-25">
+            <div class="card card-shadow border border-warning border-opacity-50">
 
-                <div class="card-header bg-success px-3 py-2 border border-0 d-flex justify-content-between align-items-center">
-                    <h3 class="fw-bold text-light m-0">Agregar Base</h3>
-                    <i class="bi bi-question-circle"
-                    id="show_tip"
-                    data-bs-toggle="tooltip" 
-                    data-bs-placement="top" 
-                    data-bs-title="Ingrese el monto de la base para iniciar el día. Este monto se sumará a las ventas del día y se restará al momento de realizar el arqueo de caja." 
-                    ></i>
-                </div>
-                
-                <div class="card-body rounded rounded-top-0 px-3 py-3">
+                {% include "components/cards/header/title_and_tooltip.html" with add_title="Agregar Base" tooltip_description="Ingrese el monto de la base para iniciar el día. Este monto se sumará a las ventas del día y se restará al momento de realizar el arqueo de caja." %}
+            
+                <div class="card-body rounded rounded-top-0 p-3 card-body-shadow border-top-0">
                     <form method="post">
                         {% csrf_token %}
                         <div class="bases-form-content">
@@ -63,8 +26,8 @@
                                     <p>Monto<p class="text-danger">*</p></p>
                                 </label>
                                 <div class="input-group active-border-group" id="group_monto">
-                                    <span class="input-group-text px-1 bg-dark-light border border-dark">
-                                        <i class="bi bi-currency-dollar"></i>
+                                    <span class="input-group-text px-1 bg-black border border-dark">
+                                        <i class="bi bi-currency-dollar text-success"></i>
                                     </span>
                                     <input class="valor form-control border-0"
                                     id="valor_base" 
@@ -81,19 +44,19 @@
                             <fieldset class="rounded filter p-1">
                                 <label class="form-label m-0" for="observacion_base">Observacion: </label>
                                 <div class="input-group active-border-group">
-                                    <span class="input-group-text px-1 bg-dark-light border border-dark">
-                                        <i class="bi bi-pen"></i>
+                                    <span class="input-group-text px-1 bg-black border border-dark">
+                                        <i class="bi bi-pen text-success"></i>
                                     </span>
                                     <textarea class="form-control border-0 input-not-focus" 
                                     id="observacion_base" name="base_observacion"> </textarea>
                                 </div>
                             </fieldset>
 
-                            <fieldset class="d-flex justify-content-end">
-                                <button class="btn-iniciar btn btn-outline-success border save-btn shadow-inset-left-bottom hover-lift clicker-btn rounded-circle" type="button" 
+                            <fieldset class="d-flex justify-content-center align-items-center">
+                                <button class="btn-save btn btn-success border save-btn shadow-inset-left-bottom hover-lift clicker-btn rounded-circle" type="button" 
                                 {% if existe_base %} disabled {% endif %}
                                 data-msj_create="Guardar base por el monto de: $">
-                                    Iniciar <i class="bi bi-arrow-right"></i>
+                                    Iniciar <i class="bi bi-arrow-right ms-1 mt-1"></i>
                                 </button>
                             </fieldset>
                         </div>
@@ -101,22 +64,28 @@
                 </div>
                 
             </div>
+        {% else %}
+            <div class="card card-shadow jello-horizontal border border-warning border-opacity-50">
+
+                <div class="card-header warning-msj px-3 py-1 border-bottom border-warning border-opacity-50 d-flex justify-content-between shadow-inset-left-bottom">
+                    <i class="bi bi-exclamation-diamond"></i>
+                    IMPORTANTE
+                    <i class="bi bi-exclamation-diamond"></i>
+                </div>
+
+                <div class="card-body shadow-inset-left-bottom rounded rounded-top-0 d-flex flex-column gap-2">
+                    El monto de la base ya fué registrado para el dia de hoy.
+                    <a class="btn btn-success shadow-inset-left-bottom btn-oroz hover-lift" href="{% url 'barra' %}">
+                        Ir a la barra principal 
+                        <i class="bi bi-box-arrow-in-right"></i>
+                    </a>
+                </div>
+                
+         </div>
         {% endif %}
     </section>
 {% endblock %}
 
 {% block extra_js %}
-<script type="module" src="{% static 'js/bases/main.js' %}"></script>
-<script>
-   
-    const input_monto = document.getElementById("valor_base");
-    const input_group = document.getElementById("group_monto");
-
-    input_monto.focus();
-
-    setTimeout(() => {
-        document.querySelector(".alert-base").classList.add("slide-out-blurred-top");
-    }, 5000);
-
-</script>
+    <script type="module" src="{% static 'js/bases/main.js' %}"></script>
 {% endblock %}

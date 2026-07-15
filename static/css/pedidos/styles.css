@@ -1,0 +1,54 @@
+/** ===============================
+** PEDIDOS > STYLES.CSS
+**
+** Estilos exclusivos de las plantillas
+** gestionar_pedidos.html, agregar_pedidos.html, editar_pedidos.html
+** ================================*/
+
+.pedidos-container {
+  flex: 1;
+}
+
+.grupos-filters{
+  max-height: 125px !important;
+  overflow-y: auto;
+  overflow-x: hidden;
+  white-space: nowrap;
+  font-size: 1rem;
+}
+
+.productos-container{
+  max-height: 530px;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  white-space: nowrap;
+}
+
+.productos-description{
+  height: 50px;
+  max-height: 50px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.check-grupos:hover{
+  border: 1px solid var(--warning) !important;
+}
+
+.check-grupos:active{
+  -webkit-animation: jello-horizontal 5s both;
+        animation: jello-horizontal 5s both;
+}
+
+/**===LAYOUT===*/
+
+.text-adjust{
+  font-size: clamp(6px, 1vw, 12px);  
+}
+
+fieldset, input, span{
+  height: calc(1.6em + 0.30rem + 1px) !important;
+}
+
+
+/** Al seleccionar un check de grupos mostrar los productos de esa categoria de grupos y ocultar los que no */

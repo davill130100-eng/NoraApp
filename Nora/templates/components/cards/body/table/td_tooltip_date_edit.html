@@ -1,0 +1,12 @@
+{% load static %}
+
+<td class="text-start bg-secondary-subtle">
+    {% if data_edit %}
+        <i class="bi bi-pencil-square text-warning"
+           data-bs-toggle="tooltip"
+           data-bs-placement="top"
+           data-bs-title="{{ data_edit }}"></i>
+    {% else %}
+        <i class="bi bi-check-square text-success"></i>
+    {% endif %}
+</td>

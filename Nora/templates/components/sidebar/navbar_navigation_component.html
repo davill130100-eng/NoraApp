@@ -4,7 +4,7 @@
 {% block extra_css %}
     <style>
         .nav-navigation, .btn-logout{
-            border-radius:  9999px;
+            border-radius:  10px;
         }
 
         .looney_logo{
@@ -21,7 +21,7 @@
     </style>
 {% endblock %}
 
-<nav class="nav-navigation h-100 gap-2 border border-danger">
+<nav class="nav-navigation bg-black h-100 gap-3 border border-warning border-opacity-50">
 
     <span class="looney_logo p-0 m-0"></span>
 
@@ -60,7 +60,7 @@
     <!--Logout-->
     <form class="form-logout m-2" action="{% url 'logout' %}" method="post">
         {% csrf_token %}
-        <button class="btn-logout btn btn-danger px-2 border border-secondary hover-lift shadow-inset-left-bottom"  
+        <button class="btn-logout btn btn-danger border-light rounded-pill px-2 hover-lift shadow-inset-left-bottom"  
         id="logout-btn"
         data-bs-toggle="tooltip" 
         data-bs-placement="right" 
